@@ -1,5 +1,5 @@
-output "id-sg" {
-    value = aws_security_group.sg.id
+output "vpc_id" {
+    value = aws_vpc.vpc.id
 }
 
 output "subnet_id" {

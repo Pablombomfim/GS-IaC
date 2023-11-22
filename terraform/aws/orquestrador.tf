@@ -4,6 +4,6 @@ module "rede" {
 
 module "compute" {
     source = "./modules/compute"
-    id-sg = module.rede.id-sg
+    vpc_id = module.rede.vpc_id
     subnet_id = module.rede.subnet_id
 }
