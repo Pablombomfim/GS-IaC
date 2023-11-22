@@ -10,7 +10,7 @@ resource "aws_instance" "web" {
 resource "aws_elb" "load_balancer" {
   name               = "loadbalancer"
   security_groups    = [var.id-sg]
-  availability_zones = ["us-east-1"]
+  availability_zones = ["us-east-1a"]
 
   listener {
     instance_port     = 80
