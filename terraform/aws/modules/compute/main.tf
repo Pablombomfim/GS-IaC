@@ -8,7 +8,7 @@ resource "aws_instance" "web" {
 }
 
 resource "aws_elb" "load_balancer" {
-  name               = "load_balancer"
+  name               = "loadbalancer"
   security_groups    = [var.id-sg]
   availability_zones = ["us-west-1a", "us-west-1b"]
 
