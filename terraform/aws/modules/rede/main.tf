@@ -30,7 +30,7 @@ resource "aws_route_table_association" "rta" {
 # RESOURCE: SECURITY GROUP
 
 resource "aws_security_group" "sg" {
-  name        = "sg-ec2"
+  name        = "Sgec2"
   description = "Allow SSH and HTTP inbound traffic"
   vpc_id      = aws_vpc.vpc.id
 
