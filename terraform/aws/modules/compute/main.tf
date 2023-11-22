@@ -3,7 +3,7 @@
 resource "aws_security_group" "sg" {
   name        = "Sgec2"
   description = "Allow SSH and HTTP inbound traffic"
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "SSH from VPC"
