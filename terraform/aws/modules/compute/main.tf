@@ -1,10 +1,11 @@
 resource "aws_instance" "web" {
-    count = 2
-    ami           = "ami-0230bd60aa48260c6"
-    instance_type = "t2.micro"
-    key_name      = "my-key"
-    user_data     = file("./modules/compute/init/instance.sh") 
-    vpc_security_group_ids = [var.id-sg]
+  count                  = 2
+  ami                    = "ami-0230bd60aa48260c6"
+  subnet_id              = var.subnet_id
+  instance_type          = "t2.micro"
+  key_name               = "my-key"
+  user_data              = file("./modules/compute/init/instance.sh")
+  vpc_security_group_ids = [var.id-sg]
 }
 
 resource "aws_elb" "load_balancer" {
