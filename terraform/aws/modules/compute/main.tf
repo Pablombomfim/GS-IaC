@@ -26,7 +26,7 @@ resource "aws_instance" "web" {
   subnet_id              = var.subnet_id
   instance_type          = "t2.micro"
   user_data              = file("./modules/compute/init/instance.sh")
-  vpc_security_group_ids = [aws_security_group.sg.id]
+  vpc_security_group_ids = [aws_security_group.sg2.id]
   associate_public_ip_address = true
 }
 
