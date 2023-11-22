@@ -1,7 +1,7 @@
-resource "aws_security_group" "sg" {
+resource "aws_security_group" "sg2" {
   name        = "Sgec2"
   description = "Allow SSH and HTTP inbound traffic"
-  vpc_id      = var.vpc_id  # Certifique-se de que este é o ID da VPC correta
+  vpc_id      = var.vpc_id  
 
   ingress {
     description = "All the ports"
@@ -32,7 +32,7 @@ resource "aws_instance" "web" {
 
 resource "aws_elb" "load_balancer" {
   name               = "loadbalancer"
-  security_groups    = [aws_security_group.sg.id]  # Use o ID do grupo de segurança criado
+  security_groups    = [aws_security_group.sg2.id]
   availability_zones = ["us-east-1a"]
 
   listener {
