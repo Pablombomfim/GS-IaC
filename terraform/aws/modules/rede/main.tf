@@ -75,17 +75,6 @@ resource "aws_lb" "lb-gs" {
     enable_http2       = true
 
 }
-resource "aws_lb" "lb-gs" {
-  name               = "lb-gs"
-  security_groups    = [aws_security_group.sg.id]
-  subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
-  idle_timeout       = 400
-  enable_deletion_protection = false
-  enable_cross_zone_load_balancing = true
-  internal           = false
-  load_balancer_type = "application"
-  enable_http2       = true
-}
 
 resource "aws_lb_target_group" "tg" {
   name     = "tg"
