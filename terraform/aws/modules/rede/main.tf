@@ -83,8 +83,8 @@ resource "aws_lb_target_group" "tg" {
   vpc_id   = aws_vpc.vpc.id
 
   health_check {
-    healthy_threshold   = 1
-    unhealthy_threshold = 1
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
     timeout             = 5
     path                = "/"
     interval            = 30
