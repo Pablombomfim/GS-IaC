@@ -62,5 +62,5 @@ resource "aws_elb" "load_balancer" {
     lb_protocol       = "http"
   }
 
-  instances = aws_instance.web[*].id
+  instances = [aws_instance.web[0].id, aws_instance.web[1].id]
 }
