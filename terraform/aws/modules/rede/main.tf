@@ -1,107 +1,111 @@
-# RESOURCE: VPC
 resource "aws_vpc" "vpc" {
-  cidr_block           = "20.0.0.0/16"
-  enable_dns_hostnames = true
+  cidr_block = "30.0.0.0/16"
 }
 
-# RESOURCE: SUBNET
-resource "aws_subnet" "subec2" {
-    vpc_id            = aws_vpc.vpc.id
-    cidr_block        = "20.0.0.0/24"
-    availability_zone = "us-east-1a"
+resource "aws_subnet" "subnet" {
+  vpc_id     = aws_vpc.vpc.id
+  cidr_block = "30.0.0.0/24"
+  availability_zone = "us-east-1a"
 }
 
-resource "aws_subnet" "subec2-2" {
-    vpc_id            = aws_vpc.vpc.id
-    cidr_block        = "20.0.1.0/24"
-    availability_zone = "us-east-1b"
+resource "aws_subnet" "subnet2" {
+  vpc_id     = aws_vpc.vpc.id
+  cidr_block = "30.0.0.1/24"
+  availability_zone = "us-east-1b"
 }
 
-# RESOURCE: INTERNET GATEWAY
+resource "aws_security_group" "sg" {
+  name        = "sg"
+  description = "sg"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description = "All trafic from VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description = "All trafic from VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+
+  }
+}
+
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 }
 
-# RESOURCE: ROUTE TABLE
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.vpc.id
-}
-
-# RESOURCE: ROUTE TABLE ASSOCIATION
-resource "aws_route_table_association" "rta" {
-  subnet_id      = aws_subnet.subec2.id
-  route_table_id = aws_route_table.rt.id
-}
-
-resource "aws_security_group" "sg2" {
-  name        = "Sgec2"
-  description = "Allow SSH and HTTP inbound traffic"
-  vpc_id      = aws_vpc.vpc.id
-
-  ingress {
-    description = "All the ports"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/16"]
-  }
-
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/16"]
+  route {
+    cidr_block = "30.0.0.0/16"
+    gateway_id = aws_internet_gateway.igw.id
   }
 }
-
-
-
-resource "aws_instance" "web" {
-  count                       = 2
-  ami                         = "ami-0230bd60aa48260c6"
-  subnet_id                   = aws_subnet.subec2.id
-  instance_type               = "t2.micro"
-  user_data                   = file("./modules/compute/init/instance.sh")
-  vpc_security_group_ids      = [aws_security_group.sg2.id]
-  associate_public_ip_address = true
+resource "aws_instance" "ec2web" {
+  ami                    = "ami-0230bd60aa48260c6"
+  count                  = 2
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.subnet.id
+  vpc_security_group_ids = [aws_security_group.sg.id]
+  user_data              = file("./modules/compute/init/instance.sh")
 }
 
-resource "aws_lb" "test" {
-  name               = "test-lb-tf"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.sg2.id]
-  subnets            = [aws_subnet.subec2.id, aws_subnet.subec2-2.id]
+resource "aws_load_balancer" "lb-gs" {
+    name               = "lb-gs"
+    internal           = false
+    security_groups    = [aws_security_group.sg.id]
+    subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+    idle_timeout       = 400
+    connection_draining = true
+    connection_draining_timeout = 400
+    health_check {
+        healthy_threshold   = 2
+        unhealthy_threshold = 2
+        timeout             = 3
+        target              = "HTTP:80/"
+        interval            = 30
+    }
+    listener {
+        instance_port     = 80
+        instance_protocol = "HTTP"
+        lb_port           = 80
+        lb_protocol       = "HTTP"
+    }
 
+    instances = aws_instance.ec2web.*.id 
 }
-resource "aws_lb_target_group" "target_group" {
-  name     = "target-group"
+
+resource "aws_lb_target_group" "tg" {
+  name     = "tg"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = aws_vpc.vpc.id
+  vpc_id   = aws_vpc.vpc.id  
+}
+
+resource "aws_lb_target_group_attachment" "tg-attachment" {
+  target_group_arn = aws_lb_target_group.tg.arn
+  target_id        = aws_instance.ec2web.*.id
+  port             = 80
 }
 
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_lb.test.arn
-  port              = 80
+  load_balancer_arn = aws_load_balancer.lb-gs.arn
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.target_group.arn
+    target_group_arn = aws_lb_target_group.tg.arn
   }
 }
 
-resource "aws_lb_target_group_attachment" "attachment" {
-  count            = 2
-  target_group_arn = aws_lb_target_group.target_group.arn
-  target_id        = aws_instance.web[count.index].id
-  port             = 80
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.subnet.id
+  route_table_id = aws_route_table.rt.id
 }
-# RESOURCE: SECURITY GROUP  
-
-# RESOURCE: EC2 INSTANCE
-
-# RESOURCE: LOAD BALANCER
-
