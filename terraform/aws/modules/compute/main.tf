@@ -9,17 +9,3 @@ resource "aws_instance" "web" {
   associate_public_ip_address = true
 }
 
-resource "aws_elb" "load_balancer" {
-  name               = "loadbalancer"
-  security_groups    = [var.id-sg]
-  availability_zones = ["us-east-1a"]
-
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-
-  instances = aws_instance.web[*].id
-}

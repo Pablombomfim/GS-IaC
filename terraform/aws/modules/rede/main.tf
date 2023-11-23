@@ -50,4 +50,17 @@ resource "aws_security_group" "sg2" {
 }
 
 
+resource "aws_elb" "load_balancer" {
+  name               = "loadbalancer"
+  security_groups    = [aws_security_group.sg2.id]
+  availability_zones = ["us-east-1a"]
 
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+  instances = aws_instance.web[*].id
+}
