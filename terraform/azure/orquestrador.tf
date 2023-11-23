@@ -67,28 +67,7 @@ resource "azurerm_network_interface" "nic" {
         subnet_id                     = azurerm_subnet.subnet.id
         private_ip_address_allocation = "Dynamic"
     }
-        sku       = "16.04-LTS"
-        version   = "latest"
-    }
-
-    os_profile {
-        computer_name  = "vm${count.index}"
-        admin_username = "adminuser"
-        admin_password = "AdminPassword123!"
-    }
-
-    os_profile_linux_config {
-        disable_password_authentication = false
-    }
-
-    storage_os_disk {
-        name              = "osdisk${count.index}"
-        caching           = "ReadWrite"
-        create_option     = "FromImage"
-        managed_disk_type = "Standard_LRS"
-    }
-
-
+}
 resource "azurerm_network_interface" "nic" {
   count               = 2
   name                = "nic${count.index}"
