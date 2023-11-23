@@ -14,7 +14,7 @@ resource "aws_subnet" "subec2" {
 resource "aws_subnet" "subec2-2" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  availability_zone = "us-east-1b"
 }
 
 # RESOURCE: INTERNET GATEWAY
