@@ -101,6 +101,22 @@ resource "aws_lb_listener" "listener" {
     target_group_arn = aws_lb_target_group.tg.arn
   }
 }
+
+resource "aws_lb_target_group_attachment" "tg_attachment" {
+  target_group_arn = aws_lb_target_group.tg.arn
+  target_id        = aws_instance.ec2web.id
+  port             = 80
+
+}
+
+resource "aws_lb_target_group_attachment" "tg_attachment2" {
+  target_group_arn = aws_lb_target_group.tg.arn
+  target_id        = aws_instance.ec2web2.id
+  port             = 80
+
+}
+
+
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.subnet.id
   route_table_id = aws_route_table.rt.id
@@ -114,3 +130,4 @@ resource "aws_security_group_rule" "allow_http" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.sg.id
 }
+
