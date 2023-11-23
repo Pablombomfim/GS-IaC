@@ -99,3 +99,9 @@ resource "aws_lb_target_group_attachment" "attachment" {
   target_id        = aws_instance.web[count.index].id
   port             = 80
 }
+# RESOURCE: SECURITY GROUP  
+
+# RESOURCE: EC2 INSTANCE
+
+# RESOURCE: LOAD BALANCER
+
