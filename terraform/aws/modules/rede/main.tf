@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.vpc.id
   route {
-    cidr_block = "30.0.0.0/16"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 }
@@ -71,6 +71,11 @@ resource "aws_lb" "lb-gs" {
     enable_deletion_protection = false
 }
 resource "aws_elb" "tg" {
+    name               = "tg"
+    security_groups    = [aws_security_group.sg.id]
+    subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+
+    
     health_check {
         healthy_threshold   = 2
         unhealthy_threshold = 2
