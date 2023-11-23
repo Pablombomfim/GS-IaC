@@ -1,11 +1,16 @@
-#!/bin/bash
-
-# Instala o servidor Apache HTTP
-sudo apt-get update
-sudo apt-get install apache2 -y
-
-# Cria o arquivo index.html com a mensagem "Hello, World!"
-echo "<html><body><h1>Hello, World!</h1></body></html>" | sudo tee /var/www/html/index.html
-
-# Inicia o servidor Apache HTTP
-sudo systemctl start apache2
+echo "Update with latest packages"
+yum update -y
+    
+echo "Install Apache"
+yum install -y httpd git
+    
+echo "Enable Apache service to start after reboot"
+sudo systemctl enable httpd
+    
+echo "Install application"
+cd /tmp
+git clone https://github.com/Pablombomfim/staticsite.git
+cp /tmp/staticsite/*.html /var/www/html/
+    
+echo "Start Apache service"
+service httpd restart
