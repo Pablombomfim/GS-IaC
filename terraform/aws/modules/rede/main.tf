@@ -10,7 +10,7 @@ resource "aws_subnet" "subnet" {
 
 resource "aws_subnet" "subnet2" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = "30.0.0.1/24"
+  cidr_block = "30.0.1.0/24"
   availability_zone = "us-east-1b"
 }
 
