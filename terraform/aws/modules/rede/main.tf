@@ -49,7 +49,14 @@ resource "aws_route_table" "rt" {
 }
 resource "aws_instance" "ec2web" {
   ami                    = "ami-0230bd60aa48260c6"
-  count                  = 2
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.subnet.id
+  vpc_security_group_ids = [aws_security_group.sg.id]
+  user_data              = file("./modules/compute/init/instance.sh")
+}
+
+resource "aws_instance" "ec2web2" {
+  ami                    = "ami-0230bd60aa48260c6"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.subnet.id
   vpc_security_group_ids = [aws_security_group.sg.id]
@@ -77,7 +84,7 @@ resource "aws_elb" "tg" {
         lb_port           = 80
         lb_protocol       = "HTTP"
     }
-    instances = [aws_instance.ec2web1.id, aws_instance.ec2web2.id]
+    instances = [aws_instance.ec2web.id, aws_instance.ec2web2.id]
 }
 
 resource "aws_lb_target_group" "tg" {
@@ -88,9 +95,9 @@ resource "aws_lb_target_group" "tg" {
 }
 
 resource "aws_lb_target_group_attachment" "tg-attachment" {
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.ec2web.*.id
-  port             = 80
+    target_group_arn = aws_lb_target_group.tg.arn
+    target_id        = [aws_instance.ec2web.id, aws_instance.ec2web2.id]
+    port             = 80
 }
 
 resource "aws_lb_listener" "listener" {
