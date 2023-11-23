@@ -27,6 +27,27 @@ resource "aws_route_table_association" "rta" {
   route_table_id = aws_route_table.rt.id
 }
 
+resource "aws_security_group" "sg2" {
+  name        = "Sgec2"
+  description = "Allow SSH and HTTP inbound traffic"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description = "All the ports"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/16"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/16"]
+  }
+}
 
 
 

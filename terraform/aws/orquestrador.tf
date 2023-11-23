@@ -1,9 +1,9 @@
 module "rede" {
-    source = "./modules/rede"
+  source = "./modules/rede"
 }
 
 module "compute" {
-    source = "./modules/compute"
-    vpc_id = modules.rede.vpc_id
-    subnet_id = modules.rede.subnet_id
+  source    = "./modules/compute"
+  id-sg     = module.rede.security_groups-id
+  subnet_id = module.rede.subnet_id
 }
