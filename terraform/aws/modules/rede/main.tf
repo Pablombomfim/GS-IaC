@@ -96,7 +96,13 @@ resource "aws_lb_target_group" "tg" {
 
 resource "aws_lb_target_group_attachment" "tg-attachment" {
     target_group_arn = aws_lb_target_group.tg.arn
-    target_id        = [aws_instance.ec2web.id, aws_instance.ec2web2.id]
+    target_id        = aws_instance.ec2web.id
+    port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "tg-attachment" {
+    target_group_arn = aws_lb_target_group.tg.arn
+    target_id        = aws_instance.ec2web2.id
     port             = 80
 }
 
