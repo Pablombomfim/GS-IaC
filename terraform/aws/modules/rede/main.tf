@@ -77,7 +77,7 @@ resource "aws_elb" "tg" {
         lb_port           = 80
         lb_protocol       = "HTTP"
     }
-    instances = aws_instance.ec2web.*.id 
+    instances = [aws_instance.ec2web1.id, aws_instance.ec2web2.id]
 }
 
 resource "aws_lb_target_group" "tg" {
