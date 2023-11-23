@@ -56,14 +56,14 @@ resource "aws_instance" "ec2web" {
   user_data              = file("./modules/compute/init/instance.sh")
 }
 
-resource "aws_load_balancer" "lb-gs" {
+resource "aws_lb" "lb-gs" {
     name               = "lb-gs"
-    internal           = false
     security_groups    = [aws_security_group.sg.id]
     subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
     idle_timeout       = 400
-    connection_draining = true
-    connection_draining_timeout = 400
+    enable_deletion_protection = false
+}
+resource "aws_elb" "tg" {
     health_check {
         healthy_threshold   = 2
         unhealthy_threshold = 2
@@ -77,7 +77,6 @@ resource "aws_load_balancer" "lb-gs" {
         lb_port           = 80
         lb_protocol       = "HTTP"
     }
-
     instances = aws_instance.ec2web.*.id 
 }
 
