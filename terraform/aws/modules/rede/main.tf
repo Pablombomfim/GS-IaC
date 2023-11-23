@@ -69,52 +69,42 @@ resource "aws_lb" "lb-gs" {
     subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
     idle_timeout       = 400
     enable_deletion_protection = false
-}
-resource "aws_elb" "tg" {
-    name               = "tg"
-    security_groups    = [aws_security_group.sg.id]
-    subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+    enable_cross_zone_load_balancing = true
+    internal           = false
+    load_balancer_type = "application"
+    enable_http2       = true
 
-    
-    health_check {
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        timeout             = 3
-        target              = "HTTP:80/"
-        interval            = 30
-    }
-    listener {
-        instance_port     = 80
-        instance_protocol = "HTTP"
-        lb_port           = 80
-        lb_protocol       = "HTTP"
-    }
-    instances = [aws_instance.ec2web.id, aws_instance.ec2web2.id]
+}
+resource "aws_lb" "lb-gs" {
+  name               = "lb-gs"
+  security_groups    = [aws_security_group.sg.id]
+  subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+  idle_timeout       = 400
+  enable_deletion_protection = false
+  enable_cross_zone_load_balancing = true
+  internal           = false
+  load_balancer_type = "application"
+  enable_http2       = true
 }
 
 resource "aws_lb_target_group" "tg" {
   name     = "tg"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = aws_vpc.vpc.id  
-}
+  vpc_id   = aws_vpc.main.id
 
-resource "aws_lb_target_group_attachment" "tg-attachment" {
-    target_group_arn = aws_lb_target_group.tg.arn
-    target_id        = aws_instance.ec2web.id
-    port             = 80
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    path                = "/"
+    interval            = 30
+  }
 }
-
-resource "aws_lb_target_group_attachment" "tg-attachment2" {
-    target_group_arn = aws_lb_target_group.tg.arn
-    target_id        = aws_instance.ec2web2.id
-    port             = 80
-}
-
 
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_lb.lb-gs.arn
-  port              = "80"
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
@@ -122,7 +112,6 @@ resource "aws_lb_listener" "listener" {
     target_group_arn = aws_lb_target_group.tg.arn
   }
 }
-
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.subnet.id
   route_table_id = aws_route_table.rt.id
