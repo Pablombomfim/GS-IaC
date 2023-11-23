@@ -67,10 +67,6 @@ resource "aws_instance" "web" {
   associate_public_ip_address = true
 }
 
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
-}
-
 resource "aws_lb" "test" {
   name               = "test-lb-tf"
   internal           = false
