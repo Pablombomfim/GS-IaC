@@ -11,6 +11,12 @@ resource "aws_subnet" "subec2" {
   availability_zone = "us-east-1a"
 }
 
+resource "aws_subnet" "subec2-2" {
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+}
+
 # RESOURCE: INTERNET GATEWAY
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
@@ -67,5 +73,5 @@ resource "aws_lb" "test" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.sg2.id]
-  subnets            = [aws_subnet.subec2.id]
+  subnets            = [aws_subnet.subec2.id, aws_subnet.subec2-2.id]
 }
