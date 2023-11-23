@@ -68,7 +68,25 @@ resource "azurerm_network_interface" "nic" {
         private_ip_address_allocation = "Dynamic"
     }
 
-    delete_data_disks_on_termination = true
+    resource "azurerm_virtual_machine" "vm" {
+        count                = 1
+    }
+        location             = azurerm_resource_group.rg.location
+        resource_group_name  = azurerm_resource_group.rg.name
+        name                 = "vm-${count.index}"
+        vm_size              = "Standard_DS1_v2"
+
+        storage_os_disk {
+            name              = "osdisk-${count.index}"
+            caching           = "ReadWrite"
+            create_option     = "FromImage"
+            managed_disk_type = "Standard_LRS"
+        }
+
+        network_interface_ids = [azurerm_network_interface.nic.*.id[count.index]]
+
+        delete_data_disks_on_termination = true
+    }
 
     storage_image_reference {
         publisher = "Canonical"
@@ -87,6 +105,28 @@ resource "azurerm_network_interface" "nic" {
         disable_password_authentication = false
     }
 
+resource "azurerm_network_interface" "nic" {
+    count               = 2
+    name                = "nic${count.index}"
+    location            = azurerm_resource_group.rg.location
+    resource_group_name = azurerm_resource_group.rg.name
+
+    ip_configuration {
+        name                          = "ipconfig"
+        subnet_id                     = azurerm_subnet.subnet.id
+        private_ip_address_allocation = "Dynamic"
+    }
+}
+    count               = 2
+    name                = "nic${count.index}"
+    location            = azurerm_resource_group.rg.location
+    resource_group_name = azurerm_resource_group.rg.name
+
+    ip_configuration {
+        name                          = "ipconfig"
+        subnet_id                     = azurerm_subnet.subnet.id
+        private_ip_address_allocation = "Dynamic"
+    }
 }
 resource "azurerm_network_interface" "nic" {
   count               = 2
