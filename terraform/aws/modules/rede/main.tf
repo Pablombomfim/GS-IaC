@@ -94,7 +94,7 @@ resource "aws_lb_target_group_attachment" "tg-attachment" {
 }
 
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_load_balancer.lb-gs.arn
+  load_balancer_arn = aws_lb.lb-gs.arn
   port              = "80"
   protocol          = "HTTP"
 
