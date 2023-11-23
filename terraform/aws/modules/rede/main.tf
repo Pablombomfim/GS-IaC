@@ -68,6 +68,14 @@ resource "aws_instance" "web" {
 }
 
 
+resource "aws_lb" "test" {
+  name               = "test-lb-tf"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.sg2.id]
+  subnets            = [aws_subnet.subec2.id, aws_subnet.subec2-2.id]
+
+}
 resource "aws_lb_target_group" "target_group" {
   name     = "target-group"
   port     = 80
