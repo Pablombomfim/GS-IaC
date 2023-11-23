@@ -105,3 +105,12 @@ resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.subnet.id
   route_table_id = aws_route_table.rt.id
 }
+
+resource "aws_security_group_rule" "allow_http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.sg.id
+}
