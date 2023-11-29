@@ -127,14 +127,14 @@ resource "aws_lb_target_group" "ec2-lb" {
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-1-lb" {
-  for_each         = aws_instance.Ec2-sub-1
+  for_each         = { for i in aws_instance.Ec2-sub-1 : i.id => i }
   target_group_arn = aws_lb_target_group.ec2-lb.arn
   target_id        = each.value.id
   port             = 80
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-2-lb" {
-  for_each         = aws_instance.Ec2-sub-2
+  for_each         = { for i in aws_instance.Ec2-sub-2 : i.id => i }
   target_group_arn = aws_lb_target_group.ec2-lb.arn
   target_id        = each.value.id
   port             = 80
