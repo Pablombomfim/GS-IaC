@@ -120,17 +120,18 @@ resource "aws_lb_target_group" "ec2-lb" {
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-1-lb" {
+  count            = length(aws_instance.Ec2-sub-1.*.id)
   target_group_arn = aws_lb_target_group.ec2-lb.arn
-  target_id        = aws_instance.Ec2-sub-1.*.id
+  target_id        = aws_instance.Ec2-sub-1[count.index].id
   port             = 80
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-2-lb" {
+  count            = length(aws_instance.Ec2-sub-2.*.id)
   target_group_arn = aws_lb_target_group.ec2-lb.arn
-  target_id        = aws_instance.Ec2-sub-2.*.id
+  target_id        = aws_instance.Ec2-sub-2[count.index].id
   port             = 80
 }
-
 
 resource "aws_lb" "ec2_lb" {
   name               = "ec2-lb"
