@@ -1,39 +1,17 @@
 resource "aws_vpc" "vpc" {
-  cidr_block = "30.0.0.0/16"
+  cidr_block = "20.0.0.0/16"
 }
 
-resource "aws_subnet" "subnet" {
+resource "aws_subnet" "subnet-1" {
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = "30.0.0.0/24"
+  cidr_block        = "20.0.0.0/24"
   availability_zone = "us-east-1a"
 }
 
-resource "aws_subnet" "subnet2" {
+resource "aws_subnet" "subnet-2" {
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = "30.0.1.0/24"
+  cidr_block        = "20.0.1.0/24"
   availability_zone = "us-east-1b"
-}
-
-resource "aws_security_group" "sg" {
-  name        = "sg"
-  description = "sg"
-  vpc_id      = aws_vpc.vpc.id
-
-  ingress {
-    description = "All trafic from VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    description = "All trafic from VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-
-  }
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -42,94 +20,109 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.vpc.id
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 }
-resource "aws_instance" "ec2web" {
-  ami                    = "ami-0230bd60aa48260c6"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.subnet.id
-  vpc_security_group_ids = [aws_security_group.sg.id]
-  user_data              = file("./modules/compute/init/instance.sh")
-}
 
-resource "aws_instance" "ec2web2" {
-  ami                    = "ami-0230bd60aa48260c6"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.subnet.id
-  vpc_security_group_ids = [aws_security_group.sg.id]
-  user_data              = file("./modules/compute/init/instance.sh")
-}
-
-resource "aws_lb" "lb-gs" {
-  name                             = "lb-gs"
-  security_groups                  = [aws_security_group.sg.id]
-  subnets                          = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
-  idle_timeout                     = 400
-  enable_deletion_protection       = false
-  enable_cross_zone_load_balancing = true
-  internal                         = false
-  load_balancer_type               = "application"
-  enable_http2                     = true
-
-}
-
-resource "aws_lb_target_group" "tg" {
-  name     = "tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.vpc.id
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-    path                = "/"
-    interval            = 30
-  }
-}
-
-resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_lb.lb-gs.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
-  }
-}
-
-resource "aws_lb_target_group_attachment" "tg_attachment" {
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.ec2web.id
-  port             = 80
-
-}
-
-resource "aws_lb_target_group_attachment" "tg_attachment2" {
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.ec2web2.id
-  port             = 80
-
-}
-
-
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.subnet.id
+resource "aws_route_table_association" "rta1" {
+  subnet_id      = aws_subnet.subnet-1.id
   route_table_id = aws_route_table.rt.id
 }
 
-resource "aws_security_group_rule" "allow_http" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.sg.id
+resource "aws_route_table_association" "rta2" {
+  subnet_id      = aws_subnet.subnet-2.id
+  route_table_id = aws_route_table.rt.id
+}
+
+resource "aws_security_group" "sg-load-balancer" {
+  name        = "sg-load-balancer"
+  description = "Allow all traffic"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "sg-ec2" {
+  name        = "sg-ec2"
+  description = "Allow all traffic"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "Ec2-sub-1" {
+  count = 2
+  subnet_id = aws_subnet.subnet-1.id
+  ami           = "ami-0230bd60aa48260c6"  
+  instance_type = "t2.micro"  
+  vpc_security_group_ids = [aws_security_group.sg-ec2.id]
+  key_name = "vockey"
+  associate_public_ip_address = true
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install httpd -y
+              sudo systemctl start httpd
+              sudo systemctl enable httpd
+              sudo echo "pagina web do balacobaco" > /var/www/html/index.html
+              EOF
+}
+
+resource "aws_instance" "Ec2-sub-1" {
+  count = 2
+  subnet_id = aws_subnet.subnet-2.id
+  ami           = "ami-0230bd60aa48260c6"  
+  instance_type = "t2.micro"  
+  vpc_security_group_ids = [aws_security_group.sg-ec2.id]
+  key_name = "vockey"
+  associate_public_ip_address = true
+    user_data = <<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install httpd -y
+              sudo systemctl start httpd
+              sudo systemctl enable httpd
+              sudo echo "pagina web do balacobaco" > /var/www/html/index.html
+              EOF
 }
 
 
-
+resource "aws_elb" "web" {
+  name               = "web"
+  subnets            = [aws_subnet.subnet-1.id, aws_subnet.subnet-2.id]
+  security_groups    = [aws_security_group.sg-load-balancer.id]
+  instances          = [aws_instance.Ec2-sub-1.id, aws_instance.Ec2-sub-2.id]
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+}
