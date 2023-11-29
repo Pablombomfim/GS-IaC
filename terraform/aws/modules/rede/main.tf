@@ -78,14 +78,14 @@ resource "aws_security_group" "sg-ec2" {
 }
 
 resource "aws_instance" "Ec2-sub-1" {
-  count = 2
-  subnet_id = aws_subnet.subnet-1.id
-  ami           = "ami-0230bd60aa48260c6"  
-  instance_type = "t2.micro"  
-  vpc_security_group_ids = [aws_security_group.sg-ec2.id]
-  key_name = "vockey"
+  count                       = 2
+  subnet_id                   = aws_subnet.subnet-1.id
+  ami                         = "ami-0230bd60aa48260c6"
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = [aws_security_group.sg-ec2.id]
+  key_name                    = "vockey"
   associate_public_ip_address = true
-  user_data = <<-EOF
+  user_data                   = <<-EOF
               #!/bin/bash
               sudo yum update -y
               sudo yum install httpd -y
@@ -96,14 +96,14 @@ resource "aws_instance" "Ec2-sub-1" {
 }
 
 resource "aws_instance" "Ec2-sub-2" {
-  count = 2
-  subnet_id = aws_subnet.subnet-2.id
-  ami           = "ami-0230bd60aa48260c6"  
-  instance_type = "t2.micro"  
-  vpc_security_group_ids = [aws_security_group.sg-ec2.id]
-  key_name = "vockey"
+  count                       = 2
+  subnet_id                   = aws_subnet.subnet-2.id
+  ami                         = "ami-0230bd60aa48260c6"
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = [aws_security_group.sg-ec2.id]
+  key_name                    = "vockey"
   associate_public_ip_address = true
-    user_data = <<-EOF
+  user_data                   = <<-EOF
               #!/bin/bash
               sudo yum update -y
               sudo yum install httpd -y
@@ -115,10 +115,10 @@ resource "aws_instance" "Ec2-sub-2" {
 
 
 resource "aws_elb" "web" {
-  name               = "web"
-  subnets            = [aws_subnet.subnet-1.id, aws_subnet.subnet-2.id]
-  security_groups    = [aws_security_group.sg-load-balancer.id]
-  instances          = [aws_instance.Ec2-sub-1.id, aws_instance.Ec2-sub-2.id]
+  name            = "web"
+  subnets         = [aws_subnet.subnet-1.id, aws_subnet.subnet-2.id]
+  security_groups = [aws_security_group.sg-load-balancer.id]
+  instances       = flatten([aws_instance.Ec2-sub-1.*.id, aws_instance.Ec2-sub-2.*.id])
   listener {
     instance_port     = 80
     instance_protocol = "http"
