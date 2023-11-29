@@ -95,7 +95,7 @@ resource "aws_instance" "Ec2-sub-1" {
               EOF
 }
 
-resource "aws_instance" "Ec2-sub-1" {
+resource "aws_instance" "Ec2-sub-2" {
   count = 2
   subnet_id = aws_subnet.subnet-2.id
   ami           = "ami-0230bd60aa48260c6"  
