@@ -127,16 +127,16 @@ resource "aws_lb_target_group" "ec2-lb" {
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-1-lb" {
-  count            = length(aws_instance.Ec2-sub-1.*.id)
+  for_each         = aws_instance.Ec2-sub-1
   target_group_arn = aws_lb_target_group.ec2-lb.arn
-  target_id        = aws_instance.Ec2-sub-1[count.index].id
+  target_id        = each.value.id
   port             = 80
 }
 
 resource "aws_lb_target_group_attachment" "ec2-sub-2-lb" {
-  count            = length(aws_instance.Ec2-sub-2.*.id)
+  for_each         = aws_instance.Ec2-sub-2
   target_group_arn = aws_lb_target_group.ec2-lb.arn
-  target_id        = aws_instance.Ec2-sub-2[count.index].id
+  target_id        = each.value.id
   port             = 80
 }
 
