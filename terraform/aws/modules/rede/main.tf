@@ -38,7 +38,7 @@ resource "aws_route_table_association" "rta2" {
 }
 
 resource "aws_security_group" "sg-load-balancer" {
-  name        = "sg-load-balancer"
+  name        = "sgloadbalancer"
   description = "Allow all traffic"
   vpc_id      = aws_vpc.vpc.id
 
@@ -58,7 +58,7 @@ resource "aws_security_group" "sg-load-balancer" {
 }
 
 resource "aws_security_group" "sg-ec2" {
-  name        = "sg-ec2"
+  name        = "sgec2"
   description = "Allow all traffic"
   vpc_id      = aws_vpc.vpc.id
 
