@@ -3,14 +3,14 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_subnet" "subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = "30.0.0.0/24"
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "30.0.0.0/24"
   availability_zone = "us-east-1a"
 }
 
 resource "aws_subnet" "subnet2" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = "30.0.1.0/24"
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "30.0.1.0/24"
   availability_zone = "us-east-1b"
 }
 
@@ -64,15 +64,15 @@ resource "aws_instance" "ec2web2" {
 }
 
 resource "aws_lb" "lb-gs" {
-    name               = "lb-gs"
-    security_groups    = [aws_security_group.sg.id]
-    subnets            = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
-    idle_timeout       = 400
-    enable_deletion_protection = false
-    enable_cross_zone_load_balancing = true
-    internal           = false
-    load_balancer_type = "application"
-    enable_http2       = true
+  name                             = "lb-gs"
+  security_groups                  = [aws_security_group.sg.id]
+  subnets                          = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+  idle_timeout                     = 400
+  enable_deletion_protection       = false
+  enable_cross_zone_load_balancing = true
+  internal                         = false
+  load_balancer_type               = "application"
+  enable_http2                     = true
 
 }
 
@@ -130,4 +130,6 @@ resource "aws_security_group_rule" "allow_http" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.sg.id
 }
+
+
 
