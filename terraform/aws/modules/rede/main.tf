@@ -83,7 +83,6 @@ resource "aws_instance" "Ec2-sub-1" {
   ami                         = "ami-0230bd60aa48260c6"
   instance_type               = "t2.micro"
   vpc_security_group_ids      = [aws_security_group.sg-ec2.id]
-  key_name                    = "vockey"
   associate_public_ip_address = true
   user_data                   = <<-EOF
               #!/bin/bash
@@ -101,7 +100,6 @@ resource "aws_instance" "Ec2-sub-2" {
   ami                         = "ami-0230bd60aa48260c6"
   instance_type               = "t2.micro"
   vpc_security_group_ids      = [aws_security_group.sg-ec2.id]
-  key_name                    = "vockey"
   associate_public_ip_address = true
   user_data                   = <<-EOF
               #!/bin/bash
@@ -114,15 +112,40 @@ resource "aws_instance" "Ec2-sub-2" {
 }
 
 
-resource "aws_elb" "web" {
-  name            = "web"
-  subnets         = [aws_subnet.subnet-1.id, aws_subnet.subnet-2.id]
-  security_groups = [aws_security_group.sg-load-balancer.id]
-  instances       = flatten([aws_instance.Ec2-sub-1.*.id, aws_instance.Ec2-sub-2.*.id])
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
+resource "aws_lb_target_group" "ec2-lb" {
+  name     = "ec2-lb"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.vpc.id
+}
+
+resource "aws_lb_target_group_attachment" "ec2-sub-1-lb" {
+  target_group_arn = aws_lb_target_group.ec2-lb.arn
+  target_id        = aws_instance.Ec2-sub-1.*.id
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "ec2-sub-2-lb" {
+  target_group_arn = aws_lb_target_group.ec2-lb.arn
+  target_id        = aws_instance.Ec2-sub-2.*.id
+  port             = 80
+}
+
+
+resource "aws_lb" "ec2_lb" {
+  name               = "ec2-lb"
+  security_groups    = [aws_security_group.sg-load-balancer.id]
+  subnets            = [aws_subnet.subnet-1.id, aws_subnet.subnet-2.id]
+  enable_deletion_protection = false
+}
+
+resource "aws_lb_listener" "ec2-lb-listener" {
+  load_balancer_arn = aws_lb.ec2_lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.ec2-lb.arn
+    type             = "forward"
   }
 }
