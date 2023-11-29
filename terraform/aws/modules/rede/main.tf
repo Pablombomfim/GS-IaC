@@ -114,7 +114,8 @@ resource "aws_instance" "Ec2-sub-2" {
               sudo yum install httpd -y
               sudo systemctl start httpd
               sudo systemctl enable httpd
-              sudo echo "pagina web do balacobaco 2 o inimigo agora é outro" > /var/www/html/index.html
+              echo "pagina web do balacobaco 2 o inimigo agora é outro" | sudo tee /var/www/html/index.html
+              sudo systemctl status httpd
               EOF
 }
 
