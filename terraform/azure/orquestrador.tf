@@ -319,14 +319,21 @@ resource "azurerm_virtual_machine" "maquina4" {
   }
 }
 
+resource "azurerm_public_ip" "lb" {
+  name                = "lb-public-ip"
+  location            = "eastus"
+  resource_group_name = "RG-Iac-Test"
+  allocation_method   = "Static"
+}
+
 resource "azurerm_lb" "lb" {
   name                = "staticsite-vm-lb"
   location            = "eastus"
   resource_group_name = "RG-Iac-Test"
-  sku                 = "Basic"
+
   frontend_ip_configuration {
     name                 = "staticsite-vm-lb-ip"
-    public_ip_address_id = azurerm_public_ip.public-ip.id
+    public_ip_address_id = azurerm_public_ip.lb.id
   }
 }
 
