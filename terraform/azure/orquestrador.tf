@@ -106,7 +106,7 @@ resource "azurerm_network_interface" "nic-azurelb" {
     name                          = "staticsite-vm-nic-azurelb-ip"
     subnet_id                     = azurerm_subnet.subnet-1.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public-ip.id
+    
   }
 }
 
