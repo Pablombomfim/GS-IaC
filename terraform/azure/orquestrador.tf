@@ -7,21 +7,21 @@ resource "azurerm_virtual_network" "vnet" {
     name                = "staticsite-vm-vnet"
     location            = "eastus"
     resource_group_name = "RG-Iac-Test"
-    address_space       = "10.0.0.0/16"
+    address_space       = "172.0.0.0/16"
 }
 
 resource "azurerm_subnet" "subnet-1" {
     name                 = "staticsite-vm-subnet-1"
     resource_group_name  = "RG-Iac-Test"
     virtual_network_name = azurerm_virtual_network.vnet.name
-    address_prefixes     = ["10.0.0.0/24"]
+    address_prefixes     = ["172.0.0.0/24"]
 }
 
 resource "azurerm_subnet" "subnet-2" {
         name                 = "staticsite-vm-subnet-2"
         resource_group_name  = "RG-Iac-Test"
         virtual_network_name = azurerm_virtual_network.vnet.name
-        address_prefixes     = ["10.0.1.0/24"]
+        address_prefixes     = ["172.0.1.0/24"]
 }
 
 
