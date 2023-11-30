@@ -25,13 +25,12 @@ resource "azurerm_subnet" "subnet-2" {
 
 
 resource "azurerm_public_ip" "public-ip" {
-  name                = "staticsite-vm-public-ip"
-  location            = "eastus"
-  resource_group_name = "RG-Iac-Test"
+  name                = "unique-public-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
-  domain_name_label   = "staticsite-vm"
+  domain_name_label   = "timmaiavseminem2"
 }
-
 resource "azurerm_network_security_group" "sgdaazurelb" {
   name                = "staticsite-vm-nsg"
   location            = "eastus"
