@@ -1,15 +1,14 @@
 resource "azurerm_resource_group" "rg" {
   name     = "RG-Iac-Test"
-  location = "eastus"
+  location = "westus"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "staticsite-vm-vnet"
-  location            = "eastus"
-  resource_group_name = "RG-Iac-Test"
-  address_space       = ["10.0.0.0/16"]
+  name                = "vnet"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  address_space       = ["20.0.0.0/16"]
 }
-
 resource "azurerm_subnet" "subnet-1" {
   name                 = "staticsite-vm-subnet-1"
   resource_group_name  = "RG-Iac-Test"
