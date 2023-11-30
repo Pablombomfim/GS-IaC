@@ -330,13 +330,6 @@ resource "azurerm_lb" "lb" {
   }
 }
 
-resource "azurerm_lb_frontend_ip_configuration" "lb-frontend" {
-  name                 = "staticsite-vm-lb-ip"
-  public_ip_address_id = azurerm_public_ip.public-ip.id
-  resource_group_name  = "RG-Iac-Test"
-  load_balancer_id     = azurerm_lb.lb.id
-}
-
 resource "azurerm_lb_backend_address_pool" "lb-backend" {
   name            = "backend-pool"
   loadbalancer_id = azurerm_lb.lb.id
