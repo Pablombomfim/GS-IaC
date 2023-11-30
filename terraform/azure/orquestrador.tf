@@ -35,7 +35,7 @@ resource "azurerm_public_ip" "public-ip" {
 
 resource "azurerm_network_security_group" "sgdaazurelb" {
   name                = "staticsite-vm-nsg"
-  location            = "e"
+  location            = "eastus"
   resource_group_name = "RG-Iac-Test"
   security_rule {
     name                       = "HTTP-Inbound"
