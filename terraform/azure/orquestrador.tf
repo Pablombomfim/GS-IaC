@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "rg" {
   name     = "RG-Iac-Test"
-  location = "westus"
+  location = "eastus"
 }
 
 resource "azurerm_virtual_network" "vnet" {
