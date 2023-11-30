@@ -160,6 +160,7 @@ resource "azurerm_virtual_machine" "maquina1" {
   resource_group_name   = "RG-Iac-Test"
   network_interface_ids = [azurerm_network_interface.nic-azurevm-1.id]
   vm_size               = "Standard_B1s"
+  
 
   delete_os_disk_on_termination    = true
   delete_data_disks_on_termination = true
@@ -316,5 +317,72 @@ resource "azurerm_virtual_machine" "maquina4" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
+}
+
+resource "azurerm_lb" "lb" {
+  name                = "staticsite-vm-lb"
+  location            = "eastus"
+  resource_group_name = "RG-Iac-Test"
+  sku                 = "Basic"
+  frontend_ip_configuration {
+    name                 = "staticsite-vm-lb-ip"
+    public_ip_address_id = azurerm_public_ip.public-ip.id
+  }
+}
+
+resource "azurerm_lb_frontend_ip_configuration" "lb-frontend" {
+  name                 = "staticsite-vm-lb-ip"
+  public_ip_address_id = azurerm_public_ip.public-ip.id
+  resource_group_name  = "RG-Iac-Test"
+  load_balancer_id     = azurerm_lb.lb.id
+}
+
+resource "azurerm_lb_backend_address_pool" "lb-backend" {
+  name            = "backend-pool"
+  loadbalancer_id = azurerm_lb.lb.id
+}
+
+resource "azurerm_lb_probe" "lb-probe" {
+  name                = "http-probe"
+  protocol            = "Http"
+  request_path        = "/"
+  port                = 80
+  interval_in_seconds = 15
+  number_of_probes    = 2
+  loadbalancer_id     = azurerm_lb.lb.id
+}
+
+resource "azurerm_lb_rule" "rule" {
+  loadbalancer_id                = azurerm_lb.lb.id
+  name                           = "myRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = azurerm_lb_frontend_ip_configuration.lb-frontend.name
+  probe_id                       = azurerm_lb_probe.lb-probe.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "assback" {
+  network_interface_id    = azurerm_network_interface.nic-azurevm-1.id
+  ip_configuration_name   = azurerm_network_interface.nic-azurevm-1.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "assback2" {
+  network_interface_id    = azurerm_network_interface.nic-azurevm-2.id
+  ip_configuration_name   = azurerm_network_interface.nic-azurevm-2.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "assback3" {
+  network_interface_id    = azurerm_network_interface.nic-azurevm-3.id
+  ip_configuration_name   = azurerm_network_interface.nic-azurevm-3.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "assback4" {
+  network_interface_id    = azurerm_network_interface.nic-azurevm-4.id
+  ip_configuration_name   = azurerm_network_interface.nic-azurevm-4.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
 }
 
