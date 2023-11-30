@@ -1,3 +1,3 @@
-module "rede" {
-  source = "./modules/rede"
+module "main" {
+  source = "./modules/main"
 }
