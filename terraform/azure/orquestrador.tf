@@ -364,9 +364,8 @@ resource "azurerm_lb_rule" "rule" {
 
 resource "azurerm_network_interface_backend_address_pool_association" "assback" {
   network_interface_id    = azurerm_network_interface.nic-azurelb.id
-  ip_configuration_name   = azurerm_network_interface.nic-azurevm-1.ip_configuration[0].name
+  ip_configuration_name   = azurerm_network_interface.nic-azurelb.ip_configuration[0].name
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
-
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "assback2" {
@@ -388,7 +387,7 @@ resource "azurerm_network_interface_backend_address_pool_association" "assback4"
 }
 
 resource "azurerm_availability_set" "aset" {
-  name                = "example-availability-set"
+  name               = "example-availability-set"
   location            = "eastus"
   resource_group_name = "RG-Iac-Test"
 }
